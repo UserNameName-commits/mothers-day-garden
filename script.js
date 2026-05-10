@@ -113,16 +113,18 @@ function setupRoom2() {
       const placed = createBigFlower(id, pos.top, pos.left);
       placementArea.appendChild(placed);
 
-      // ⭐ Immediately disappear
-      placed.style.opacity = "0";
-      setTimeout(() => placed.remove(), 10);
+      // ⭐ Show flower briefly, then fade out and remove
+      setTimeout(() => {
+        placed.style.opacity = "0";
+        setTimeout(() => placed.remove(), 300);
+      }, 500);
 
       invFlower.style.opacity = "0";
 
       placedCount++;
 
       if (placedCount === 5) {
-        showFinalImageOverlay();
+        startOverlay();
       }
     });
   });
@@ -130,10 +132,14 @@ function setupRoom2() {
 
 /* ---------------- FINAL IMAGE OVERLAY ---------------- */
 
-function showFinalImageOverlay() {
+function startOverlay() {
   // Hide inventory
   const inv = document.getElementById("inventory");
   if (inv) inv.style.display = "none";
+
+  // Hide instructions text
+  const instructions = document.getElementById("instructions");
+  if (instructions) instructions.style.display = "none";
 
   // Remove any leftover flowers
   const placementArea = document.getElementById("placement-area");
