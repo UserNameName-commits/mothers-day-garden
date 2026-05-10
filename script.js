@@ -122,15 +122,15 @@ function setupRoom2() {
       placedCount++;
 
       if (placedCount === 5) {
-        startMosaicSequence();
+        showFinalImageOverlay();
       }
     });
   });
 }
 
-/* ---------------- FINAL IMAGE OVERLAY (NO MOSAIC) ---------------- */
+/* ---------------- FINAL IMAGE OVERLAY ---------------- */
 
-function startMosaicSequence() {
+function showFinalImageOverlay() {
   // Hide inventory
   const inv = document.getElementById("inventory");
   if (inv) inv.style.display = "none";
@@ -143,14 +143,4 @@ function startMosaicSequence() {
   const finalImg = document.getElementById("final-image");
   finalImg.style.opacity = "1";
   finalImg.style.transform = "none";
-}
-
-/* ---------------- UTILS ---------------- */
-
-function lerp(a, b, t) {
-  return a + (b - a) * t;
-}
-
-function easeOut(t) {
-  return 1 - Math.pow(1 - t, 3);
 }
