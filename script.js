@@ -23,14 +23,18 @@ document.querySelectorAll(".spot").forEach(spot => {
   spot.addEventListener("click", () => {
     const id = spot.dataset.id;
 
+    // Create big flower in Room 1
     const flower = createBigFlower(id, spot.style.top, spot.style.left);
     document.getElementById("garden").appendChild(flower);
 
+    // Hide the sprout
     spot.style.display = "none";
 
+    // Show modal
     document.getElementById("modal-text").innerText = messages[id];
     document.getElementById("modal").style.display = "flex";
 
+    // Update inventory
     if (!collected[id]) {
       collected[id] = true;
       collectedCount++;
@@ -96,6 +100,7 @@ function setupRoom2() {
   const placementArea = document.getElementById("placement-area");
   let placedCount = 0;
 
+  // Make inventory clickable again
   document.querySelectorAll(".slot").forEach(slot => {
     slot.style.opacity = "1";
     slot.style.visibility = "visible";
@@ -109,14 +114,16 @@ function setupRoom2() {
     invFlower.addEventListener("click", function handleClick() {
       invFlower.removeEventListener("click", handleClick);
 
+      // Place big flower
       const pos = placementPositions[id];
       const placed = createBigFlower(id, pos.top, pos.left);
       placementArea.appendChild(placed);
 
-      // ⭐ Big flower disappears immediately
+      // ⭐ Immediately disappear
       placed.style.opacity = "0";
       setTimeout(() => placed.remove(), 10);
 
+      // Hide inventory slot
       invFlower.style.opacity = "0";
 
       placedCount++;
