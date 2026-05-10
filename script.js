@@ -128,17 +128,16 @@ function setupRoom2() {
 
 function startMosaicSequence() {
 
-  /* ⭐ REMOVE INVENTORY BAR ⭐ */
+  // ⭐ REMOVE INVENTORY BAR
   const inv = document.getElementById("inventory");
   if (inv) inv.style.display = "none";
 
   const placementArea = document.getElementById("placement-area");
-  const instructions = document.getElementById("instructions");
 
   const bigFlowers = placementArea.querySelectorAll(".flower");
   bigFlowers.forEach(f => {
     f.style.transition = "opacity 1s ease";
-    f.style.opacity = "1"; // keep visible initially
+    f.style.opacity = "1";
   });
 
   setTimeout(() => {
@@ -157,8 +156,8 @@ function runMosaic(bigFlowers) {
   img.src = "assets/final-image.jpg";
 
   img.onload = () => {
-    const cols = 120;
-    const rows = 120;
+    const cols = 250;   // ⭐ higher density
+    const rows = 250;   // ⭐ higher density
     const cellW = canvas.width / cols;
     const cellH = canvas.height / rows;
 
@@ -190,7 +189,7 @@ function runMosaic(bigFlowers) {
           finalX: x * cellW + cellW / 2,
           finalY: y * cellH + cellH / 2,
           startSize: Math.random() * 6 + 3,
-          finalSize: Math.min(cellW, cellH) * 0.45,
+          finalSize: Math.min(cellW, cellH) * 0.60,  // ⭐ bigger flowers
           r, g, b,
           progress: 0
         });
@@ -229,13 +228,12 @@ function runMosaic(bigFlowers) {
         bigFlowers.forEach(f => {
           f.style.transition = "opacity 1.5s ease";
           f.style.opacity = "0";
+          setTimeout(() => f.remove(), 1500);  // ⭐ fully remove
         });
       }
 
       if (completed < flowers.length) {
         requestAnimationFrame(animate);
-      } else {
-        revealFinalImage();
       }
     }
 
@@ -269,15 +267,4 @@ function lerp(a, b, t) {
 
 function easeOut(t) {
   return 1 - Math.pow(1 - t, 3);
-}
-
-function revealFinalImage() {
-  const img = document.getElementById("final-image");
-  img.style.opacity = "1";
-  img.style.transform = "scale(1)";
-
-  const canvas = document.getElementById("mosaic-canvas");
-  setTimeout(() => {
-    canvas.style.opacity = "0";
-  }, 2000);
 }
