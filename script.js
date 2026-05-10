@@ -124,11 +124,11 @@ function setupRoom2() {
   });
 }
 
-/* ---------------- NON-GRID CHAOTIC MOSAIC ENGINE ---------------- */
+/* ---------------- NEW NON-GRID MOSAIC ENGINE ---------------- */
 
 function startMosaicSequence() {
-  // Hide inventory bar
-  const inv = document.getElementById("inventory");
+  // REMOVE INVENTORY BAR
+  const inv = document.getElementById("inventory-bar");
   if (inv) inv.style.display = "none";
 
   const placementArea = document.getElementById("placement-area");
@@ -155,31 +155,21 @@ function runFlowerSwarm(bigFlowers) {
   img.src = "assets/final-image.jpg";
 
   img.onload = () => {
-    // make sure canvas is visible
-    canvas.style.opacity = "1";
-
-    const MAX_SIZE = 200;
-    const scale = Math.min(MAX_SIZE / img.width, MAX_SIZE / img.height);
-
-    const w = Math.floor(img.width * scale);
-    const h = Math.floor(img.height * scale);
-
     const temp = document.createElement("canvas");
-    temp.width = w;
-    temp.height = h;
+    temp.width = img.width;
+    temp.height = img.height;
     const tctx = temp.getContext("2d");
-    tctx.drawImage(img, 0, 0, w, h);
-
-    const data = tctx.getImageData(0, 0, w, h).data;
+    tctx.drawImage(img, 0, 0);
+    const data = tctx.getImageData(0, 0, img.width, img.height).data;
 
     const FLOWERS = 8000;
     let particles = [];
 
     for (let i = 0; i < FLOWERS; i++) {
-      const x = Math.floor(Math.random() * w);
-      const y = Math.floor(Math.random() * h);
+      const x = Math.floor(Math.random() * img.width);
+      const y = Math.floor(Math.random() * img.height);
 
-      const p = (y * w + x) * 4;
+      const p = (y * img.width + x) * 4;
       const r = data[p];
       const g = data[p + 1];
       const b = data[p + 2];
@@ -187,8 +177,8 @@ function runFlowerSwarm(bigFlowers) {
 
       if (a < 20) continue;
 
-      const finalX = (x / w) * canvas.width;
-      const finalY = (y / h) * canvas.height;
+      const finalX = (x / img.width) * canvas.width;
+      const finalY = (y / img.height) * canvas.height;
 
       particles.push({
         startX: Math.random() * canvas.width,
@@ -200,11 +190,6 @@ function runFlowerSwarm(bigFlowers) {
         r, g, b,
         t: 0
       });
-    }
-
-    if (particles.length === 0) {
-      // fallback: do nothing instead of freezing
-      return;
     }
 
     let zoom = 3.0;
