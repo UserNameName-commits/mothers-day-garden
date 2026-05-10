@@ -127,7 +127,7 @@ function setupRoom2() {
 /* ---------------- NON-GRID CHAOTIC MOSAIC ENGINE ---------------- */
 
 function startMosaicSequence() {
-  // REMOVE INVENTORY BAR (correct ID)
+  // REMOVE INVENTORY BAR
   const inv = document.getElementById("inventory");
   if (inv) inv.style.display = "none";
 
@@ -155,21 +155,29 @@ function runFlowerSwarm(bigFlowers) {
   img.src = "assets/final-image.jpg";
 
   img.onload = () => {
+    /* AUTO-DOWNSCALE IMAGE TO SAFE SIZE */
+    const MAX_SIZE = 200; // safe sampling resolution
+    const scale = Math.min(MAX_SIZE / img.width, MAX_SIZE / img.height);
+
+    const w = Math.floor(img.width * scale);
+    const h = Math.floor(img.height * scale);
+
     const temp = document.createElement("canvas");
-    temp.width = img.width;
-    temp.height = img.height;
+    temp.width = w;
+    temp.height = h;
     const tctx = temp.getContext("2d");
-    tctx.drawImage(img, 0, 0);
-    const data = tctx.getImageData(0, 0, img.width, img.height).data;
+    tctx.drawImage(img, 0, 0, w, h);
+
+    const data = tctx.getImageData(0, 0, w, h).data;
 
     const FLOWERS = 8000;
     let particles = [];
 
     for (let i = 0; i < FLOWERS; i++) {
-      const x = Math.floor(Math.random() * img.width);
-      const y = Math.floor(Math.random() * img.height);
+      const x = Math.floor(Math.random() * w);
+      const y = Math.floor(Math.random() * h);
 
-      const p = (y * img.width + x) * 4;
+      const p = (y * w + x) * 4;
       const r = data[p];
       const g = data[p + 1];
       const b = data[p + 2];
@@ -177,8 +185,8 @@ function runFlowerSwarm(bigFlowers) {
 
       if (a < 20) continue;
 
-      const finalX = (x / img.width) * canvas.width;
-      const finalY = (y / img.height) * canvas.height;
+      const finalX = (x / w) * canvas.width;
+      const finalY = (y / h) * canvas.height;
 
       particles.push({
         startX: Math.random() * canvas.width,
