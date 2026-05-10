@@ -124,27 +124,29 @@ function setupRoom2() {
   });
 }
 
-/* ---------------- NEW NON-GRID MOSAIC ENGINE ---------------- */
+/* ---------------- MOSAIC ENGINE ---------------- */
 
 function startMosaicSequence() {
-  // REMOVE INVENTORY BAR
-  const inv = document.getElementById("inventory-bar");
+
+  /* ⭐ REMOVE INVENTORY BAR ⭐ */
+  const inv = document.getElementById("inventory");
   if (inv) inv.style.display = "none";
 
   const placementArea = document.getElementById("placement-area");
-  const bigFlowers = placementArea.querySelectorAll(".flower");
+  const instructions = document.getElementById("instructions");
 
+  const bigFlowers = placementArea.querySelectorAll(".flower");
   bigFlowers.forEach(f => {
     f.style.transition = "opacity 1s ease";
-    f.style.opacity = "1";
+    f.style.opacity = "1"; // keep visible initially
   });
 
   setTimeout(() => {
-    runFlowerSwarm(bigFlowers);
+    runMosaic(bigFlowers);
   }, 800);
 }
 
-function runFlowerSwarm(bigFlowers) {
+function runMosaic(bigFlowers) {
   const canvas = document.getElementById("mosaic-canvas");
   const ctx = canvas.getContext("2d");
 
@@ -155,94 +157,85 @@ function runFlowerSwarm(bigFlowers) {
   img.src = "assets/final-image.jpg";
 
   img.onload = () => {
+    const cols = 120;
+    const rows = 120;
+    const cellW = canvas.width / cols;
+    const cellH = canvas.height / rows;
+
     const temp = document.createElement("canvas");
-    temp.width = img.width;
-    temp.height = img.height;
+    temp.width = cols;
+    temp.height = rows;
     const tctx = temp.getContext("2d");
-    tctx.drawImage(img, 0, 0);
-    const data = tctx.getImageData(0, 0, img.width, img.height).data;
+    tctx.drawImage(img, 0, 0, cols, rows);
+    const data = tctx.getImageData(0, 0, cols, rows).data;
 
-    const FLOWERS = 8000;
-    let particles = [];
+    canvas.style.opacity = "1";
 
-    for (let i = 0; i < FLOWERS; i++) {
-      const x = Math.floor(Math.random() * img.width);
-      const y = Math.floor(Math.random() * img.height);
+    let flowers = [];
 
-      const p = (y * img.width + x) * 4;
+    for (let i = 0; i < cols * rows; i++) {
+      const x = i % cols;
+      const y = Math.floor(i / cols);
+
+      const p = (y * cols + x) * 4;
       const r = data[p];
       const g = data[p + 1];
       const b = data[p + 2];
       const a = data[p + 3];
 
-      if (a < 20) continue;
-
-      const finalX = (x / img.width) * canvas.width;
-      const finalY = (y / img.height) * canvas.height;
-
-      particles.push({
-        startX: Math.random() * canvas.width,
-        startY: Math.random() * canvas.height,
-        finalX,
-        finalY,
-        sizeStart: Math.random() * 10 + 5,
-        sizeEnd: 6,
-        r, g, b,
-        t: 0
-      });
+      if (a > 10) {
+        flowers.push({
+          startX: Math.random() * canvas.width,
+          startY: Math.random() * canvas.height,
+          finalX: x * cellW + cellW / 2,
+          finalY: y * cellH + cellH / 2,
+          startSize: Math.random() * 6 + 3,
+          finalSize: Math.min(cellW, cellH) * 0.45,
+          r, g, b,
+          progress: 0
+        });
+      }
     }
 
-    let zoom = 3.0;
-    let zoomT = 0;
-    let bigFaded = false;
+    let bigFlowersFaded = false;
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      zoomT += 0.004;
-      zoom = lerp(3.0, 1.0, easeOut(zoomT));
+      let completed = 0;
 
-      ctx.save();
-      ctx.scale(zoom, zoom);
-      ctx.translate(
-        -(canvas.width * (zoom - 1)) / (2 * zoom),
-        -(canvas.height * (zoom - 1)) / (2 * zoom)
-      );
-
-      let done = 0;
-
-      particles.forEach(p => {
-        p.t += 0.01;
-        if (p.t >= 1) {
-          p.t = 1;
-          done++;
+      flowers.forEach(f => {
+        f.progress += 0.01;
+        if (f.progress >= 1) {
+          f.progress = 1;
+          completed++;
         }
 
-        const tt = easeOut(p.t);
+        const t = easeOut(f.progress);
 
-        const x = lerp(p.startX, p.finalX, tt);
-        const y = lerp(p.startY, p.finalY, tt);
-        const size = lerp(p.sizeStart, p.sizeEnd, tt);
+        const cx = lerp(f.startX, f.finalX, t);
+        const cy = lerp(f.startY, f.finalY, t);
+        const size = lerp(f.startSize, f.finalSize, t);
 
-        const color = `rgb(${p.r},${p.g},${p.b})`;
+        const color = `rgb(${f.r},${f.g},${f.b})`;
 
-        drawFlower(ctx, x, y, size, color);
+        drawFlower(ctx, cx, cy, size, color);
       });
 
-      ctx.restore();
+      const ratio = completed / flowers.length;
 
-      const ratio = done / particles.length;
-
-      if (!bigFaded && ratio > 0.7) {
-        bigFaded = true;
+      if (!bigFlowersFaded && ratio > 0.7) {
+        bigFlowersFaded = true;
         bigFlowers.forEach(f => {
           f.style.transition = "opacity 1.5s ease";
           f.style.opacity = "0";
         });
       }
 
-      if (done < particles.length || zoomT < 1) {
+      if (completed < flowers.length) {
         requestAnimationFrame(animate);
+      } else {
+        revealFinalImage();
       }
     }
 
@@ -276,4 +269,15 @@ function lerp(a, b, t) {
 
 function easeOut(t) {
   return 1 - Math.pow(1 - t, 3);
+}
+
+function revealFinalImage() {
+  const img = document.getElementById("final-image");
+  img.style.opacity = "1";
+  img.style.transform = "scale(1)";
+
+  const canvas = document.getElementById("mosaic-canvas");
+  setTimeout(() => {
+    canvas.style.opacity = "0";
+  }, 2000);
 }
