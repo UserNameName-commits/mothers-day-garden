@@ -113,7 +113,7 @@ function setupRoom2() {
       const placed = createBigFlower(id, pos.top, pos.left);
       placementArea.appendChild(placed);
 
-      // ⭐ Big flower disappears immediately
+      // Big flower disappears immediately after being placed
       placed.style.opacity = "0";
       setTimeout(() => placed.remove(), 10);
 
@@ -122,128 +122,33 @@ function setupRoom2() {
       placedCount++;
 
       if (placedCount === 5) {
-        startMosaicSequence();
+        startFinalOverlay();
       }
     });
   });
 }
 
-/* ---------------- MOSAIC ENGINE ---------------- */
+/* ---------------- FINAL IMAGE OVERLAY ---------------- */
 
-function startMosaicSequence() {
-
-  // ⭐ REMOVE INVENTORY BAR
+function startFinalOverlay() {
+  // Hide inventory bar
   const inv = document.getElementById("inventory");
   if (inv) inv.style.display = "none";
 
+  // Ensure any remaining big flowers are gone
   const placementArea = document.getElementById("placement-area");
-
   const bigFlowers = placementArea.querySelectorAll(".flower");
-  bigFlowers.forEach(f => {
-    f.style.transition = "opacity 1s ease";
-    f.style.opacity = "1";
-  });
+  bigFlowers.forEach(f => f.remove());
 
-  setTimeout(() => {
-    runMosaic(bigFlowers);
-  }, 800);
+  // Show final image as a simple overlay (no fade, no zoom)
+  const finalImg = document.getElementById("final-image");
+  if (finalImg) {
+    finalImg.style.opacity = "1";
+    finalImg.style.transform = "none";
+  }
 }
 
-function runMosaic(bigFlowers) {
-  const canvas = document.getElementById("mosaic-canvas");
-  const ctx = canvas.getContext("2d");
-
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  const img = new Image();
-  img.src = "assets/final-image.jpg";
-
-  img.onload = () => {
-    const cols = 150;
-    const rows = 150;
-    const cellW = canvas.width / cols;
-    const cellH = canvas.height / rows;
-
-    const temp = document.createElement("canvas");
-    temp.width = cols;
-    temp.height = rows;
-    const tctx = temp.getContext("2d");
-    tctx.drawImage(img, 0, 0, cols, rows);
-    const data = tctx.getImageData(0, 0, cols, rows).data;
-
-    canvas.style.opacity = "1";
-
-    let flowers = [];
-
-    for (let i = 0; i < cols * rows; i++) {
-      const x = i % cols;
-      const y = Math.floor(i / cols);
-
-      const p = (y * cols + x) * 4;
-      const r = data[p];
-      const g = data[p + 1];
-      const b = data[p + 2];
-      const a = data[p + 3];
-
-      if (a > 10) {
-        flowers.push({
-          startX: Math.random() * canvas.width,
-          startY: Math.random() * canvas.height,
-          finalX: x * cellW + cellW / 2,
-          finalY: y * cellH + cellH / 2,
-          startSize: Math.random() * 6 + 3,
-          finalSize: Math.min(cellW, cellH) * 0.60,
-          r, g, b,
-          progress: 0
-        });
-      }
-    }
-
-    let bigFlowersFaded = false;
-
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      let completed = 0;
-
-      flowers.forEach(f => {
-        f.progress += 0.01;
-        if (f.progress >= 1) {
-          f.progress = 1;
-          completed++;
-        }
-
-        const t = easeOut(f.progress);
-
-        const cx = lerp(f.startX, f.finalX, t);
-        const cy = lerp(f.startY, f.finalY, t);
-        const size = lerp(f.startSize, f.finalSize, t);
-
-        const color = `rgb(${f.r},${f.g},${f.b})`;
-
-        drawFlower(ctx, cx, cy, size, color);
-      });
-
-      const ratio = completed / flowers.length;
-
-      if (!bigFlowersFaded && ratio > 0.7) {
-        bigFlowersFaded = true;
-        bigFlowers.forEach(f => {
-          f.style.transition = "opacity 1.5s ease";
-          f.style.opacity = "0";
-          setTimeout(() => f.remove(), 1500);
-        });
-      }
-
-      if (completed < flowers.length) {
-        requestAnimationFrame(animate);
-      }
-    }
-
-    animate();
-  };
-}
+/* ---------------- UTILS ---------------- */
 
 function drawFlower(ctx, x, y, size, color) {
   ctx.save();
@@ -271,4 +176,3 @@ function lerp(a, b, t) {
 
 function easeOut(t) {
   return 1 - Math.pow(1 - t, 3);
-}
