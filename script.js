@@ -160,8 +160,8 @@ function runMosaic(bigFlowers) {
   img.src = "assets/final-image.jpg";
 
   img.onload = () => {
-    const cols = 200;   // ⭐ higher density
-    const rows = 200;   // ⭐ higher density
+    const cols = 160;   // ⭐ higher density
+    const rows = 160;   // ⭐ higher density
     const cellW = canvas.width / cols;
     const cellH = canvas.height / rows;
 
