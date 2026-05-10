@@ -124,15 +124,19 @@ function setupRoom2() {
   });
 }
 
-/* ---------------- NEW MOSAIC ENGINE ---------------- */
+/* ---------------- NON-GRID CHAOTIC MOSAIC ENGINE ---------------- */
 
 function startMosaicSequence() {
+  // REMOVE INVENTORY BAR (correct ID)
+  const inv = document.getElementById("inventory");
+  if (inv) inv.style.display = "none";
+
   const placementArea = document.getElementById("placement-area");
   const bigFlowers = placementArea.querySelectorAll(".flower");
 
   bigFlowers.forEach(f => {
     f.style.transition = "opacity 1s ease";
-    f.style.opacity = "1"; // keep visible initially
+    f.style.opacity = "1";
   });
 
   setTimeout(() => {
@@ -158,10 +162,10 @@ function runFlowerSwarm(bigFlowers) {
     tctx.drawImage(img, 0, 0);
     const data = tctx.getImageData(0, 0, img.width, img.height).data;
 
-    const FLOWER_COUNT = 8000;
-    let flowers = [];
+    const FLOWERS = 8000;
+    let particles = [];
 
-    for (let i = 0; i < FLOWER_COUNT; i++) {
+    for (let i = 0; i < FLOWERS; i++) {
       const x = Math.floor(Math.random() * img.width);
       const y = Math.floor(Math.random() * img.height);
 
@@ -176,68 +180,68 @@ function runFlowerSwarm(bigFlowers) {
       const finalX = (x / img.width) * canvas.width;
       const finalY = (y / img.height) * canvas.height;
 
-      flowers.push({
+      particles.push({
         startX: Math.random() * canvas.width,
         startY: Math.random() * canvas.height,
         finalX,
         finalY,
-        startSize: Math.random() * 8 + 4,
-        finalSize: 6,
+        sizeStart: Math.random() * 10 + 5,
+        sizeEnd: 6,
         r, g, b,
-        progress: 0
+        t: 0
       });
     }
 
-    let cameraZoom = 3.0;
-    let zoomProgress = 0;
-    let bigFlowersFaded = false;
+    let zoom = 3.0;
+    let zoomT = 0;
+    let bigFaded = false;
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      zoomProgress += 0.004;
-      cameraZoom = lerp(3.0, 1.0, easeOut(zoomProgress));
+      zoomT += 0.004;
+      zoom = lerp(3.0, 1.0, easeOut(zoomT));
 
       ctx.save();
-      ctx.scale(cameraZoom, cameraZoom);
+      ctx.scale(zoom, zoom);
       ctx.translate(
-        -(canvas.width * (cameraZoom - 1)) / (2 * cameraZoom),
-        -(canvas.height * (cameraZoom - 1)) / (2 * cameraZoom)
+        -(canvas.width * (zoom - 1)) / (2 * zoom),
+        -(canvas.height * (zoom - 1)) / (2 * zoom)
       );
 
-      let completed = 0;
+      let done = 0;
 
-      flowers.forEach(f => {
-        f.progress += 0.01;
-        if (f.progress >= 1) {
-          f.progress = 1;
-          completed++;
+      particles.forEach(p => {
+        p.t += 0.01;
+        if (p.t >= 1) {
+          p.t = 1;
+          done++;
         }
 
-        const t = easeOut(f.progress);
+        const tt = easeOut(p.t);
 
-        const cx = lerp(f.startX, f.finalX, t);
-        const cy = lerp(f.startY, f.finalY, t);
-        const size = lerp(f.startSize, f.finalSize, t);
+        const x = lerp(p.startX, p.finalX, tt);
+        const y = lerp(p.startY, p.finalY, tt);
+        const size = lerp(p.sizeStart, p.sizeEnd, tt);
 
-        const color = `rgb(${f.r},${f.g},${f.b})`;
+        const color = `rgb(${p.r},${p.g},${p.b})`;
 
-        drawFlower(ctx, cx, cy, size, color);
+        drawFlower(ctx, x, y, size, color);
       });
 
       ctx.restore();
 
-      const ratio = completed / flowers.length;
+      const ratio = done / particles.length;
 
-      if (!bigFlowersFaded && ratio > 0.7) {
-        bigFlowersFaded = true;
+      if (!bigFaded && ratio > 0.7) {
+        bigFaded = true;
         bigFlowers.forEach(f => {
           f.style.transition = "opacity 1.5s ease";
           f.style.opacity = "0";
         });
       }
 
-      if (completed < flowers.length || zoomProgress < 1) {
+      if (done < particles.length || zoomT < 1) {
         requestAnimationFrame(animate);
       }
     }
