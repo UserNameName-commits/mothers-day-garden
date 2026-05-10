@@ -137,7 +137,7 @@ function startOverlay() {
   const inv = document.getElementById("inventory");
   if (inv) inv.style.display = "none";
 
-  // Hide instructions text
+  // ⭐ Hide instructions at the same moment inventory disappears
   const instructions = document.getElementById("instructions");
   if (instructions) instructions.style.display = "none";
 
