@@ -3,7 +3,7 @@
 const messages = {
   1: "I love you so much, amma, more than what words can express",
   2: "You mean the world to me, amma",
-  3: "I'm so grateful to have you in my life, amma",
+  3: "You mean the world to me, amma",
   4: "I hope this day is filled with happiness for you, amma",
   5: "You're the best mother in the world, amma!"
 };
@@ -145,7 +145,7 @@ function startOverlay() {
   const placementArea = document.getElementById("placement-area");
   placementArea.querySelectorAll(".flower").forEach(f => f.remove());
 
-  // Show final image instantly
+  // Show final image
   const finalImg = document.getElementById("final-image");
   finalImg.style.opacity = "1";
   finalImg.style.transform = "none";
