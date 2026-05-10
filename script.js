@@ -113,10 +113,6 @@ function setupRoom2() {
       const placed = createBigFlower(id, pos.top, pos.left);
       placementArea.appendChild(placed);
 
-      // ⭐ Big flowers disappear immediately
-      placed.style.opacity = "0";
-      setTimeout(() => placed.remove(), 300);
-
       invFlower.style.opacity = "0";
 
       placedCount++;
@@ -160,8 +156,8 @@ function runMosaic(bigFlowers) {
   img.src = "assets/final-image.jpg";
 
   img.onload = () => {
-    const cols = 100;   // ⭐ higher density
-    const rows = 100;   // ⭐ higher density
+    const cols = 250;   // ⭐ higher density
+    const rows = 250;   // ⭐ higher density
     const cellW = canvas.width / cols;
     const cellH = canvas.height / rows;
 
