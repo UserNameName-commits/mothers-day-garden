@@ -1,0 +1,202 @@
+body {
+  margin: 0;
+  background: #F7F3EB;
+  font-family: "Georgia", serif;
+  overflow: hidden;
+}
+
+/* ROOM 1 */
+#room1 {
+  width: 100vw;
+  height: 100vh;
+}
+
+#garden {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: linear-gradient(#D7ECFF 0%, #D7ECFF 50%, #E8D9C4 50%, #E8D9C4 100%);
+}
+
+/* Sprouts */
+.spot {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  cursor: pointer;
+}
+
+.spot::before {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 18px;
+  background: #A3D9A5;
+  border-radius: 3px;
+  left: 50%;
+  top: 40%;
+  transform: translateX(-50%);
+}
+
+.spot::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #CFF5E7;
+  border-radius: 50% 50% 0 50%;
+  left: 50%;
+  top: 20%;
+  transform: translateX(-50%) rotate(-20deg);
+}
+
+/* Flowers */
+.flower {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  animation: bloom 0.5s ease-out;
+}
+
+@keyframes bloom {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.petal {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: var(--petal-color);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform-origin: center;
+}
+
+.center {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: var(--center-color);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Inventory */
+#inventory {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 90px;
+  background: rgba(255,255,255,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  backdrop-filter: blur(6px);
+  z-index: 20;
+}
+
+.slot {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.8);
+  border: 2px solid #E3D5C3;
+}
+
+/* Modal */
+#modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.3);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 30;
+}
+
+#modal-content {
+  background: #FFF7FA;
+  padding: 25px;
+  border-radius: 15px;
+  width: 300px;
+  text-align: center;
+}
+
+/* Next Room Button */
+#next-room {
+  position: fixed;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 25px;
+  background: #F7C8D0;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  display: none;
+  cursor: pointer;
+  z-index: 25;
+}
+
+/* ROOM 2 */
+#room2 {
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  background: #F7F3EB;
+  position: relative;
+  overflow: hidden;
+}
+
+#instructions {
+  position: absolute;
+  top: 20px;
+  width: 100%;
+  text-align: center;
+  font-size: 18px;
+  color: #7A5C58;
+  z-index: 10;
+}
+
+#placement-area {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 60%;
+  z-index: 10;
+}
+
+/* Mosaic Canvas */
+#mosaic-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  opacity: 0;
+  z-index: 5;
+  pointer-events: none;
+  transition: opacity 1.5s ease;
+}
+
+/* Final Image */
+#final-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: contain;
+  opacity: 0;
+  transform: scale(3);
+  transition: transform 3s ease, opacity 3s ease;
+  z-index: 6;
+}

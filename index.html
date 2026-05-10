@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mother's Day Garden</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ROOM 1 -->
+<div id="room1">
+  <div id="garden">
+    <div class="spot" data-id="1" style="top:65%;left:20%;"></div>
+    <div class="spot" data-id="2" style="top:60%;left:50%;"></div>
+    <div class="spot" data-id="3" style="top:70%;left:75%;"></div>
+    <div class="spot" data-id="4" style="top:58%;left:30%;"></div>
+    <div class="spot" data-id="5" style="top:55%;left:85%;"></div>
+  </div>
+</div>
+
+<!-- INVENTORY -->
+<div id="inventory">
+  <div class="slot" id="slot1"></div>
+  <div class="slot" id="slot2"></div>
+  <div class="slot" id="slot3"></div>
+  <div class="slot" id="slot4"></div>
+  <div class="slot" id="slot5"></div>
+</div>
+
+<!-- MODAL -->
+<div id="modal">
+  <div id="modal-content">
+    <p id="modal-text"></p>
+    <button id="close-modal">♡ Close</button>
+  </div>
+</div>
+
+<!-- NEXT ROOM BUTTON -->
+<button id="next-room">Go to the Next Room</button>
+
+<!-- ROOM 2 -->
+<div id="room2">
+  <div id="instructions">Click each flower in your inventory to place it.</div>
+
+  <div id="placement-area"></div>
+
+  <canvas id="mosaic-canvas"></canvas>
+
+  <img id="final-image" src="assets/final-image.jpg" alt="Final Image">
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
