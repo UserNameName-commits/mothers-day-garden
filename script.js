@@ -132,18 +132,16 @@ function startMosaicSequence() {
 
   const bigFlowers = placementArea.querySelectorAll(".flower");
   bigFlowers.forEach(f => {
-    f.style.transition = "opacity 0.5s ease";
-    f.style.opacity = "0";
+    f.style.transition = "opacity 1s ease";
+    f.style.opacity = "1"; // keep visible initially
   });
 
   setTimeout(() => {
-    placementArea.innerHTML = "";
-    instructions.style.opacity = "0";
-    runMosaic();
-  }, 600);
+    runMosaic(bigFlowers);
+  }, 800);
 }
 
-function runMosaic() {
+function runMosaic(bigFlowers) {
   const canvas = document.getElementById("mosaic-canvas");
   const ctx = canvas.getContext("2d");
 
@@ -168,56 +166,104 @@ function runMosaic() {
 
     canvas.style.opacity = "1";
 
-    let index = 0;
+    let flowers = [];
 
-    function drawBatch() {
-      let count = 0;
-      while (index < cols * rows && count < 2000) {
-        const x = index % cols;
-        const y = Math.floor(index / cols);
+    for (let i = 0; i < cols * rows; i++) {
+      const x = i % cols;
+      const y = Math.floor(i / cols);
 
-        const p = (y * cols + x) * 4;
-        const r = data[p];
-        const g = data[p + 1];
-        const b = data[p + 2];
-        const a = data[p + 3];
+      const p = (y * cols + x) * 4;
+      const r = data[p];
+      const g = data[p + 1];
+      const b = data[p + 2];
+      const a = data[p + 3];
 
-        if (a > 10) {
-          const cx = x * cellW + cellW / 2;
-          const cy = y * cellH + cellH / 2;
-          const size = Math.min(cellW, cellH) * 0.5;
+      if (a > 10) {
+        flowers.push({
+          startX: Math.random() * canvas.width,
+          startY: Math.random() * canvas.height,
+          finalX: x * cellW + cellW / 2,
+          finalY: y * cellH + cellH / 2,
+          startSize: Math.random() * 6 + 3,
+          finalSize: Math.min(cellW, cellH) * 0.45,
+          r, g, b,
+          progress: 0
+        });
+      }
+    }
 
-          ctx.save();
-          ctx.translate(cx, cy);
-          ctx.fillStyle = `rgb(${r},${g},${b})`;
+    let bigFlowersFaded = false;
 
-          for (let i = 0; i < 5; i++) {
-            ctx.rotate((Math.PI * 2) / 5);
-            ctx.beginPath();
-            ctx.ellipse(0, -size * 0.4, size * 0.25, size * 0.4, 0, 0, Math.PI * 2);
-            ctx.fill();
-          }
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-          ctx.beginPath();
-          ctx.fillStyle = "white";
-          ctx.arc(0, 0, size * 0.2, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
+      let completed = 0;
+
+      flowers.forEach(f => {
+        f.progress += 0.01;
+        if (f.progress >= 1) {
+          f.progress = 1;
+          completed++;
         }
 
-        index++;
-        count++;
+        const t = easeOut(f.progress);
+
+        const cx = lerp(f.startX, f.finalX, t);
+        const cy = lerp(f.startY, f.finalY, t);
+        const size = lerp(f.startSize, f.finalSize, t);
+
+        const color = `rgb(${f.r},${f.g},${f.b})`;
+
+        drawFlower(ctx, cx, cy, size, color);
+      });
+
+      const ratio = completed / flowers.length;
+
+      if (!bigFlowersFaded && ratio > 0.7) {
+        bigFlowersFaded = true;
+        bigFlowers.forEach(f => {
+          f.style.transition = "opacity 1.5s ease";
+          f.style.opacity = "0";
+        });
       }
 
-      if (index < cols * rows) {
-        requestAnimationFrame(drawBatch);
+      if (completed < flowers.length) {
+        requestAnimationFrame(animate);
       } else {
         revealFinalImage();
       }
     }
 
-    drawBatch();
+    animate();
   };
+}
+
+function drawFlower(ctx, x, y, size, color) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = color;
+
+  for (let i = 0; i < 5; i++) {
+    ctx.rotate((Math.PI * 2) / 5);
+    ctx.beginPath();
+    ctx.ellipse(0, -size * 0.4, size * 0.25, size * 0.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.beginPath();
+  ctx.fillStyle = "white";
+  ctx.arc(0, 0, size * 0.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+function easeOut(t) {
+  return 1 - Math.pow(1 - t, 3);
 }
 
 function revealFinalImage() {
@@ -228,5 +274,5 @@ function revealFinalImage() {
   const canvas = document.getElementById("mosaic-canvas");
   setTimeout(() => {
     canvas.style.opacity = "0";
-  }, 2500);
+  }, 2000);
 }
