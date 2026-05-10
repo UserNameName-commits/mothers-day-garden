@@ -113,6 +113,10 @@ function setupRoom2() {
       const placed = createBigFlower(id, pos.top, pos.left);
       placementArea.appendChild(placed);
 
+      // ⭐ Big flowers disappear immediately
+      placed.style.opacity = "0";
+      setTimeout(() => placed.remove(), 300);
+
       invFlower.style.opacity = "0";
 
       placedCount++;
