@@ -113,7 +113,7 @@ function setupRoom2() {
       const placed = createBigFlower(id, pos.top, pos.left);
       placementArea.appendChild(placed);
 
-      // Big flower disappears immediately after being placed
+      // ⭐ Big flower disappears immediately
       placed.style.opacity = "0";
       setTimeout(() => placed.remove(), 10);
 
@@ -122,7 +122,7 @@ function setupRoom2() {
       placedCount++;
 
       if (placedCount === 5) {
-        startFinalOverlay();
+        showFinalImageOverlay();
       }
     });
   });
@@ -130,49 +130,17 @@ function setupRoom2() {
 
 /* ---------------- FINAL IMAGE OVERLAY ---------------- */
 
-function startFinalOverlay() {
-  // Hide inventory bar
+function showFinalImageOverlay() {
+  // Hide inventory
   const inv = document.getElementById("inventory");
   if (inv) inv.style.display = "none";
 
-  // Ensure any remaining big flowers are gone
+  // Remove any leftover flowers
   const placementArea = document.getElementById("placement-area");
-  const bigFlowers = placementArea.querySelectorAll(".flower");
-  bigFlowers.forEach(f => f.remove());
+  placementArea.querySelectorAll(".flower").forEach(f => f.remove());
 
-  // Show final image as a simple overlay (no fade, no zoom)
+  // Show final image instantly
   const finalImg = document.getElementById("final-image");
-  if (finalImg) {
-    finalImg.style.opacity = "1";
-    finalImg.style.transform = "none";
-  }
+  finalImg.style.opacity = "1";
+  finalImg.style.transform = "none";
 }
-
-/* ---------------- UTILS ---------------- */
-
-function drawFlower(ctx, x, y, size, color) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.fillStyle = color;
-
-  for (let i = 0; i < 5; i++) {
-    ctx.rotate((Math.PI * 2) / 5);
-    ctx.beginPath();
-    ctx.ellipse(0, -size * 0.4, size * 0.25, size * 0.4, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  ctx.beginPath();
-  ctx.fillStyle = "white";
-  ctx.arc(0, 0, size * 0.2, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.restore();
-}
-
-function lerp(a, b, t) {
-  return a + (b - a) * t;
-}
-
-function easeOut(t) {
-  return 1 - Math.pow(1 - t, 3);
