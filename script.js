@@ -127,7 +127,7 @@ function setupRoom2() {
 /* ---------------- NON-GRID CHAOTIC MOSAIC ENGINE ---------------- */
 
 function startMosaicSequence() {
-  // REMOVE INVENTORY BAR
+  // Hide inventory bar
   const inv = document.getElementById("inventory");
   if (inv) inv.style.display = "none";
 
@@ -155,8 +155,10 @@ function runFlowerSwarm(bigFlowers) {
   img.src = "assets/final-image.jpg";
 
   img.onload = () => {
-    /* AUTO-DOWNSCALE IMAGE TO SAFE SIZE */
-    const MAX_SIZE = 200; // safe sampling resolution
+    // make sure canvas is visible
+    canvas.style.opacity = "1";
+
+    const MAX_SIZE = 200;
     const scale = Math.min(MAX_SIZE / img.width, MAX_SIZE / img.height);
 
     const w = Math.floor(img.width * scale);
@@ -198,6 +200,11 @@ function runFlowerSwarm(bigFlowers) {
         r, g, b,
         t: 0
       });
+    }
+
+    if (particles.length === 0) {
+      // fallback: do nothing instead of freezing
+      return;
     }
 
     let zoom = 3.0;
