@@ -113,6 +113,10 @@ function setupRoom2() {
       const placed = createBigFlower(id, pos.top, pos.left);
       placementArea.appendChild(placed);
 
+      // ⭐ Big flower disappears immediately
+      placed.style.opacity = "0";
+      setTimeout(() => placed.remove(), 10);
+
       invFlower.style.opacity = "0";
 
       placedCount++;
@@ -156,8 +160,8 @@ function runMosaic(bigFlowers) {
   img.src = "assets/final-image.jpg";
 
   img.onload = () => {
-    const cols = 250;   // ⭐ higher density
-    const rows = 250;   // ⭐ higher density
+    const cols = 150;
+    const rows = 150;
     const cellW = canvas.width / cols;
     const cellH = canvas.height / rows;
 
@@ -189,7 +193,7 @@ function runMosaic(bigFlowers) {
           finalX: x * cellW + cellW / 2,
           finalY: y * cellH + cellH / 2,
           startSize: Math.random() * 6 + 3,
-          finalSize: Math.min(cellW, cellH) * 0.60,  // ⭐ bigger flowers
+          finalSize: Math.min(cellW, cellH) * 0.60,
           r, g, b,
           progress: 0
         });
@@ -228,7 +232,7 @@ function runMosaic(bigFlowers) {
         bigFlowers.forEach(f => {
           f.style.transition = "opacity 1.5s ease";
           f.style.opacity = "0";
-          setTimeout(() => f.remove(), 1500);  // ⭐ fully remove
+          setTimeout(() => f.remove(), 1500);
         });
       }
 
