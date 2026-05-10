@@ -137,9 +137,12 @@ function startOverlay() {
   const inv = document.getElementById("inventory");
   if (inv) inv.style.display = "none";
 
-  // ⭐ Hide instructions at the same moment inventory disappears
+  // ⭐ Instantly hide instructions (opacity + display)
   const instructions = document.getElementById("instructions");
-  if (instructions) instructions.style.display = "none";
+  if (instructions) {
+    instructions.style.opacity = "0";
+    instructions.style.display = "none";
+  }
 
   // Remove any leftover flowers
   const placementArea = document.getElementById("placement-area");
