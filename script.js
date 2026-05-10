@@ -124,24 +124,23 @@ function setupRoom2() {
   });
 }
 
-/* ---------------- MOSAIC ENGINE ---------------- */
+/* ---------------- NEW MOSAIC ENGINE ---------------- */
 
 function startMosaicSequence() {
   const placementArea = document.getElementById("placement-area");
-  const instructions = document.getElementById("instructions");
-
   const bigFlowers = placementArea.querySelectorAll(".flower");
+
   bigFlowers.forEach(f => {
     f.style.transition = "opacity 1s ease";
     f.style.opacity = "1"; // keep visible initially
   });
 
   setTimeout(() => {
-    runMosaic(bigFlowers);
+    runFlowerSwarm(bigFlowers);
   }, 800);
 }
 
-function runMosaic(bigFlowers) {
+function runFlowerSwarm(bigFlowers) {
   const canvas = document.getElementById("mosaic-canvas");
   const ctx = canvas.getContext("2d");
 
@@ -152,50 +151,59 @@ function runMosaic(bigFlowers) {
   img.src = "assets/final-image.jpg";
 
   img.onload = () => {
-    const cols = 120;
-    const rows = 120;
-    const cellW = canvas.width / cols;
-    const cellH = canvas.height / rows;
-
     const temp = document.createElement("canvas");
-    temp.width = cols;
-    temp.height = rows;
+    temp.width = img.width;
+    temp.height = img.height;
     const tctx = temp.getContext("2d");
-    tctx.drawImage(img, 0, 0, cols, rows);
-    const data = tctx.getImageData(0, 0, cols, rows).data;
+    tctx.drawImage(img, 0, 0);
+    const data = tctx.getImageData(0, 0, img.width, img.height).data;
 
-    canvas.style.opacity = "1";
-
+    const FLOWER_COUNT = 8000;
     let flowers = [];
 
-    for (let i = 0; i < cols * rows; i++) {
-      const x = i % cols;
-      const y = Math.floor(i / cols);
+    for (let i = 0; i < FLOWER_COUNT; i++) {
+      const x = Math.floor(Math.random() * img.width);
+      const y = Math.floor(Math.random() * img.height);
 
-      const p = (y * cols + x) * 4;
+      const p = (y * img.width + x) * 4;
       const r = data[p];
       const g = data[p + 1];
       const b = data[p + 2];
       const a = data[p + 3];
 
-      if (a > 10) {
-        flowers.push({
-          startX: Math.random() * canvas.width,
-          startY: Math.random() * canvas.height,
-          finalX: x * cellW + cellW / 2,
-          finalY: y * cellH + cellH / 2,
-          startSize: Math.random() * 6 + 3,
-          finalSize: Math.min(cellW, cellH) * 0.45,
-          r, g, b,
-          progress: 0
-        });
-      }
+      if (a < 20) continue;
+
+      const finalX = (x / img.width) * canvas.width;
+      const finalY = (y / img.height) * canvas.height;
+
+      flowers.push({
+        startX: Math.random() * canvas.width,
+        startY: Math.random() * canvas.height,
+        finalX,
+        finalY,
+        startSize: Math.random() * 8 + 4,
+        finalSize: 6,
+        r, g, b,
+        progress: 0
+      });
     }
 
+    let cameraZoom = 3.0;
+    let zoomProgress = 0;
     let bigFlowersFaded = false;
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      zoomProgress += 0.004;
+      cameraZoom = lerp(3.0, 1.0, easeOut(zoomProgress));
+
+      ctx.save();
+      ctx.scale(cameraZoom, cameraZoom);
+      ctx.translate(
+        -(canvas.width * (cameraZoom - 1)) / (2 * cameraZoom),
+        -(canvas.height * (cameraZoom - 1)) / (2 * cameraZoom)
+      );
 
       let completed = 0;
 
@@ -217,6 +225,8 @@ function runMosaic(bigFlowers) {
         drawFlower(ctx, cx, cy, size, color);
       });
 
+      ctx.restore();
+
       const ratio = completed / flowers.length;
 
       if (!bigFlowersFaded && ratio > 0.7) {
@@ -227,10 +237,8 @@ function runMosaic(bigFlowers) {
         });
       }
 
-      if (completed < flowers.length) {
+      if (completed < flowers.length || zoomProgress < 1) {
         requestAnimationFrame(animate);
-      } else {
-        revealFinalImage();
       }
     }
 
@@ -264,15 +272,4 @@ function lerp(a, b, t) {
 
 function easeOut(t) {
   return 1 - Math.pow(1 - t, 3);
-}
-
-function revealFinalImage() {
-  const img = document.getElementById("final-image");
-  img.style.opacity = "1";
-  img.style.transform = "scale(1)";
-
-  const canvas = document.getElementById("mosaic-canvas");
-  setTimeout(() => {
-    canvas.style.opacity = "0";
-  }, 2000);
 }
